@@ -1,4 +1,5 @@
 #pragma once
+
 #include"Rule.h"
 #include"Referee.h"
 #include"Chess.h"
