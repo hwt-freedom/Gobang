@@ -36,13 +36,17 @@ int Rule::ChessTypeJudge(int ChessFlagTmp[9]) {
 	}
 
 	if (count >= 6)
-		return ChangLian;
+		return ChangLian;//多个1
+
+	if (count == 5) {
+		return Lian5;//11111 连5
+	}
 
 	if (count == 4) {
 		if (leftCutFlag == 0 && rightCutFlag == 0)
-			return Huo4;
-		else if (leftCutFlag == opponentFlag || rightCutFlag == opponentFlag)
-			return Chong4;
+			return Huo4;//0 1111 0  活4
+		if (leftCutFlag == 0 && rightCutFlag == opponentFlag || leftCutFlag == opponentFlag && rightCutFlag == 0)
+			return HighChong4;//2 1111 0 或 0 1111 2 冲4_1
 	}
 
 	if (count == 3) {
@@ -50,22 +54,23 @@ int Rule::ChessTypeJudge(int ChessFlagTmp[9]) {
 		int leftCutExpFlag1 = ChessFlagTmp[leftCutPos - 1];
 		int	rightCutExpFlag1 = ChessFlagTmp[rightCutPos + 1];//断开位置往外拓展一个棋子的标志记录
 
-		if (leftCutFlag == 0 && rightCutFlag == 0) {//截断处都无棋子
-			if (leftCutExpFlag1 == currentFlag || rightCutExpFlag1 == currentFlag)//判断是否形成跳4,若拓展一个位置和中心位置棋子相同
-				return TiaoChong4;
-			else if (leftCutExpFlag1 == 0 || rightCutExpFlag1 == 0)//判断是否形成活3，若扩展一个位置均无棋子
-				return Huo3;
-		}
-		else if (leftCutFlag == 0 || rightCutFlag == 0) {//截断处有一个位置有棋子
-			if (leftCutFlag == opponentFlag) {//假设左边为对手的棋子
-				if(rightCutExpFlag1 == currentFlag)//右边拓展一个位置和中心位置棋子相同
-					return TiaoChong4;
-			}
-			if (rightCutFlag == opponentFlag) {//假设右边为对手的棋子
-				if (leftCutExpFlag1 == currentFlag)//左边拓展一个位置和中心位置棋子相同
-					return TiaoChong4;
-			}
-		}
+		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag)
+			return DoubleChong4;// 10 111 01 双冲4_1
+
+		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag || rightCutFlag == 0 && rightCutExpFlag1 == currentFlag)
+			return LowChong4;//10 111或111 01  冲4_2
+
+		if (leftCutFlag == 0 && rightCutFlag == 0)//在两边都无棋子的情况下
+			if (leftCutExpFlag1 == 0 || rightCutExpFlag1 == 0)//只要有一侧的外部无棋子
+				return Huo3;// 00 111 0 或 0 111 00  活3
+
+		if ((leftCutFlag == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == 0) ||
+			(rightCutFlag == opponentFlag && leftCutFlag == 0 && leftCutExpFlag1 == 0))
+			return Mian3;//2 111 00 或 00 111 2 眠3_1
+
+		if (leftCutFlag == 0 && leftCutExpFlag1 == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == opponentFlag)
+			return Mian3;//20 111 02 眠3_6
+
 	}
 
 	if (count == 2) {
@@ -75,25 +80,37 @@ int Rule::ChessTypeJudge(int ChessFlagTmp[9]) {
 		int leftCutExpFlag2 = ChessFlagTmp[leftCutPos - 2];
 		int	rightCutExpFlag2 = ChessFlagTmp[rightCutPos + 2];//断开位置往外拓展两个棋子的标志记录
 		
-		if (leftCutFlag == 0 && rightCutFlag == 0) {//截断处都无棋子
-			if ((leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag) ||
-				(rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag))//断开位置往外拓展两个棋子都有且和中心位置棋子相同
-				return TiaoChong4;
+		if (rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag &&
+			leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag)
+			return DoubleChong4;//110 11 011  双冲4_2
 
-			if ((leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == 0) ||
-				(rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == 0))
-				return Tiao3;
-		}
-		else if (leftCutFlag == 0 || rightCutFlag == 0) {
-			if (leftCutFlag == opponentFlag) {//左边为对手的棋子
-				if(rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag)
-					return TiaoChong4;
-			}
-			if (rightCutFlag == opponentFlag) {
-				if(leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag)
-					return TiaoChong4;
-			}
-		}
+		if ((rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag) ||
+			(leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag))
+			return LowChong4;//110 11 或 11 011  冲4_3
+
+		if ((rightCutFlag == 0 && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == 0) ||
+			(leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == 0))
+			return Tiao3;//010 11 0 或 0 11 010 跳3
+
+		if ((rightCutFlag == opponentFlag && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == 0) ||
+			(leftCutFlag == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == 0))
+			return Mian3;//2 11 010 或 010 11 2 眠3_2
+
+		if ((rightCutFlag == 0 && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == opponentFlag) ||
+			(leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == opponentFlag))
+			return Mian3;//0 11 012 或 210 11 0 眠3_3
+
+		if ((rightCutFlag == 0 && rightCutExpFlag1 == 0 && rightCutExpFlag2 == currentFlag) ||
+			(leftCutFlag == 0 && leftCutExpFlag1 == 0 && leftCutExpFlag2 == currentFlag))
+			return Mian3;// 11 001 或 100 11 眠3_4
+
+		if (rightCutFlag == 0 && rightCutExpFlag1 == 0 && leftCutFlag == 0 && leftCutExpFlag1 == 0)
+			return Huo2;//00 11 00 活2_1
+
+		if ((rightCutFlag == opponentFlag && leftCutFlag == 0 && leftCutExpFlag1 == 0 && leftCutExpFlag2 == 0) ||
+			(leftCutFlag == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == 0 && rightCutExpFlag2 == 0))
+			return Mian2;//000 11 2 或 2 11 000 眠2_1
+
 	}
 
 	if (count == 1) {
@@ -105,43 +122,91 @@ int Rule::ChessTypeJudge(int ChessFlagTmp[9]) {
 		int leftCutExpFlag3 = ChessFlagTmp[leftCutPos - 3];
 		int	rightCutExpFlag3 = ChessFlagTmp[rightCutPos + 3];//断开位置往外拓展三个棋子的标志记录
 
-		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag &&
-			leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == currentFlag)
-			return TiaoChong4;
-		if (rightCutFlag == 0 && rightCutExpFlag1 == currentFlag &&
-			rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == currentFlag)
-			return TiaoChong4;
-		if (leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag &&
-			rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == 0)
-			return Huo3;
-		if (leftCutFlag == 0 && rightCutFlag == 0 && leftCutExpFlag1 == currentFlag &&
-			leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == 0)
-			return Huo3;
+		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == currentFlag &&
+			rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == currentFlag)
+			return DoubleChong4;// 1110 1 01111  双冲4_3
+
+		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == currentFlag)
+			return LowChong4;//1110 1 冲4_2
+		if (rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == currentFlag)
+			return LowChong4;//1 0111 冲4_2
+
+		if (leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == 0)
+			return Tiao3;//0 1 0110 跳3
+		if (rightCutFlag == 0 && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == 0)
+			return Tiao3;//0110 1 0 跳3
+
+		if (leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == opponentFlag)
+			return Mian3;//0 1 0112 眠3_2
+		if (rightCutFlag == 0 && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == opponentFlag)
+			return Mian3;//2110 1 0 眠3_2
+
+		if (leftCutFlag == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == 0)
+			return Mian3;//2 1 0110 眠3_3
+		if (rightCutFlag == opponentFlag && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == 0)
+			return Mian3;//0110 1 2 眠3_3
+
+		if (leftCutFlag == 0 && leftCutExpFlag1 == 0 && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == currentFlag)
+			return Mian3;//1100 1 眠3_4
+		if (rightCutFlag == 0 && rightCutExpFlag1 == 0 && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == currentFlag)
+			return Mian3;//1 0011 眠3_4
+
+		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag)
+			return Mian3;// 10 1 01 眠3_5
+		if (leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == 0 && leftCutExpFlag3 == currentFlag)
+			return Mian3;//1010 1 眠3_5
+		if (rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == 0 && rightCutExpFlag3 == currentFlag)
+			return Mian3;//1 0101 眠3_5
+
+		if (leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == 0)
+			return Tiao2;//0 1 010 跳2_1
+		if (rightCutFlag == 0 && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == 0)
+			return Tiao2;//010 1 0 跳2_1
+
+		if (leftCutFlag == 0 && rightCutFlag == 0 && rightCutExpFlag1 == 0 && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == 0)
+			return Tiao2;// 0 1 0010 跳2_2
+		if (rightCutFlag == 0 && leftCutFlag == 0 && leftCutExpFlag1 == 0 && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == 0)
+			return Tiao2;//0100 1 0  跳2_2
+
+		if (leftCutFlag == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == currentFlag && rightCutExpFlag2 == 0 && rightCutExpFlag3 == 0)
+			return Mian2;//2 1 0100 眠2_2
+		if (rightCutFlag == opponentFlag && leftCutFlag == 0 && leftCutExpFlag1 == currentFlag && leftCutExpFlag2 == 0 && leftCutExpFlag3 == 0)
+			return Mian2;//0010 1 2 眠2_2
+
+		if (leftCutFlag == opponentFlag && rightCutFlag == 0 && rightCutExpFlag1 == 0 && rightCutExpFlag2 == currentFlag && rightCutExpFlag3 == 0)
+			return Mian2;//2 1 0010 眠2_3
+		if (rightCutFlag == opponentFlag && leftCutFlag == 0 && leftCutExpFlag1 == 0 && leftCutExpFlag2 == currentFlag && leftCutExpFlag3 == 0)
+			return Mian2;//0100 1 2 眠2_3
+
+		if (leftCutFlag == 0 && leftCutExpFlag1 == 0 && leftCutExpFlag2 == 0 && leftCutExpFlag3 == currentFlag)
+			return Mian2;//1000 1 眠2_4
+		if (rightCutFlag == 0 && rightCutExpFlag1 == 0 && rightCutExpFlag2 == 0 && rightCutExpFlag3 == currentFlag)
+			return Mian2;//1 0001 眠2_4
+
 	}
 
 	return 0;
 }
 
-void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int direction, int ChessFlagTmp[9]) {//可以写到其他类里边，调用方法
-	
-	int currentFlag;//当前棋子的标志信息 
-	int opponentFlag;//对手棋子的标志信息
-	//棋子标志信息  0无棋子，1黑棋，2白棋
-																											
+void Rule::ChessArrange(ChessBoard &chessboard, Chess &currentChess, int direction, int ChessFlagTmp[9]) {
+																										
 	int currentRow = currentChess.getRow();
-	int currentCol = currentChess.getCol();
-	currentFlag = chessBoardFlagTmp[currentRow][currentCol];
+	int currentCol = currentChess.getCol();//获得当前棋子坐标
 
-	if (currentFlag == 1) {//设置对手标志位，若当前标志显示为黑棋
+	int currentFlag, opponentFlag;//棋子标志信息  0无棋子，1黑棋，2白棋	
+	if (!currentChess.getColour()) {//如果是黑棋
+		currentFlag = 1;
 		opponentFlag = 2;
 	}
-	else if (currentFlag == 2) {
+	else {
+		currentFlag = 2;
 		opponentFlag = 1;
 	}
 
 	ChessFlagTmp[4] = currentFlag;
 	switch (direction) {
-	case 0://横向
+	case 0://左 → 右
+
 		for (int i = currentRow, j = 1; j <= 4; j++) {//当前位置左边棋子整理，若出界则填充成对方颜色
 			int col = currentCol - j;
 			if (col < 0) {
@@ -151,8 +216,7 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 				}
 				break;
 			}
-			else
-				ChessFlagTmp[4 - j] = chessBoardFlagTmp[i][col];//若没出界则将棋盘标志信息复制到对应位置即可			
+			ChessFlagTmp[4 - j] = chessboard.getFlag(i, col);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		for (int i = currentRow, j = 1; j <= 4; j++) {//当前位置右边棋子整理，若出界则填充成对方颜色
 			int col = currentCol + j;
@@ -163,12 +227,12 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 				}
 				break;
 			}
-			else
-				ChessFlagTmp[4 + j] = chessBoardFlagTmp[i][col];//若没出界则将棋盘标志信息复制到对应位置即可		
+			ChessFlagTmp[4 + j] = chessboard.getFlag(i, col);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		break;
 
-	case 1://纵向
+	case 1://上 → 下
+
 		for (int i = 1, j = currentCol; i <= 4; i++) {//当前位置上边棋子整理，若出界则填充成对方颜色
 			int row = currentRow - i;
 			if (row < 0) {
@@ -178,35 +242,33 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 				}
 				break;
 			}
-			else
-				ChessFlagTmp[4 - i] = chessBoardFlagTmp[row][j];//若没出界则将棋盘标志信息复制到对应位置即可			
+			ChessFlagTmp[4 - i] = chessboard.getFlag(row, j);//若没出界则将棋盘标志信息复制到对应位置即可	
 		}
 		for (int i = 1, j = currentCol; i <= 4; i++) {//当前位置上边棋子整理，若出界则填充成对方颜色
 			int row = currentRow + i;
-			if (row < 0) {
+			if (row > 14) {
 				while (i <= 4) {
 					ChessFlagTmp[4 + i] = opponentFlag;
 					i++;
 				}
 				break;
 			}
-			else
-				ChessFlagTmp[4 + i] = chessBoardFlagTmp[row][j];//若没出界则将棋盘标志信息复制到对应位置即可			
+			ChessFlagTmp[4 + i] = chessboard.getFlag(row, j);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		break;
 	
-	case 2://左上右下
+	case 2://左上 → 右下
 		for (int i = 1, j = 1; i <= 4; i++, j++) {//当前位置左上边棋子整理，若出界则填充成对方颜色
 			int row = currentRow - i;
 			int col = currentCol - j;
-			if (row < 0 || col <0) {//其中一个出界
+			if (row < 0 || col < 0) {//其中一个出界
 				while (i <= 4) {
 					ChessFlagTmp[4 - i] = opponentFlag;
 					i++;
 				}
 				break;
 			}
-			ChessFlagTmp[4 - i] = chessBoardFlagTmp[row][col];//若没出界则将棋盘标志信息复制到对应位置即可
+			ChessFlagTmp[4 - i] = chessboard.getFlag(row, col);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		for (int i = 1, j = 1; i <= 4; i++, j++) {//当前位置右下边棋子整理，若出界则填充成对方颜色
 			int row = currentRow + i;
@@ -218,11 +280,11 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 				}
 				break;
 			}
-			ChessFlagTmp[4 + i] = chessBoardFlagTmp[row][col];//若没出界则将棋盘标志信息复制到对应位置即可
+			ChessFlagTmp[4 + i] = chessboard.getFlag(row, col);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		break;
 
-	case 3://右上左下
+	case 3://右上 → 左下
 		for (int i = 1, j = 1; i <= 4; i++, j++) {//当前位置右上边棋子整理，若出界则填充成对方颜色
 			int row = currentRow - i;
 			int col = currentCol + j;
@@ -233,7 +295,7 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 				}
 				break;
 			}
-			ChessFlagTmp[4 - i] = chessBoardFlagTmp[row][col];//若没出界则将棋盘标志信息复制到对应位置即可
+			ChessFlagTmp[4 - i] = chessboard.getFlag(row, col);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		for (int i = 1, j = 1; i <= 4; i++, j++) {//当前位置左下边棋子整理，若出界则填充成对方颜色
 			int row = currentRow + i;
@@ -245,7 +307,7 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 				}
 				break;
 			}
-			ChessFlagTmp[4 + i] = chessBoardFlagTmp[row][col];//若没出界则将棋盘标志信息复制到对应位置即可
+			ChessFlagTmp[4 + i] = chessboard.getFlag(row, col);//若没出界则将棋盘标志信息复制到对应位置即可
 		}
 		break;
 
@@ -255,101 +317,98 @@ void Rule::ChessArrange(int chessBoardFlagTmp[15][15], Chess currentChess, int d
 
 }
 
-int Rule::ChessTypeGet(int chessBoardFlagTmp[15][15], Chess currentChess,int direction) {
+int Rule::ChessTypeGet(ChessBoard &chessboard, Chess &currentChess,int direction) {
 
 	int ChessType;//棋型
 	int ChessFlagTmp[9] = { 0 };//某一个方向的棋子暂存
 
-	ChessArrange(chessBoardFlagTmp, currentChess, direction, ChessFlagTmp);//将某一个方向的棋子整理为合适格式
+	ChessArrange(chessboard, currentChess, direction, ChessFlagTmp);//将某一个方向的棋子整理为合适格式
 	ChessType = ChessTypeJudge(ChessFlagTmp);
 
 	return ChessType;
 }
 
-int Rule::fobiddenTypeJudge(int chessBoardFlagTmp[15][15], Chess currentChess) {
+int Rule::forbiddenTypeJudge(ChessBoard &chessboard, Chess &currentChess) {
 
 	int ChessType;//棋型
 
 	int ChangLianNum = 0;
+	int Lian5Num = 0;
 	int Huo4Num = 0;
-	int Chong4Num = 0;
-	int TiaoChong4Num = 0;
+	int DoubleChong4Num = 0;
+	int HighChong4Num = 0;
+	int LowChong4Num = 0;
 	int Huo3Num = 0;
+	int Tiao3Num = 0;
 
 	for (int direction = 0; direction < 4; direction++) {
-		ChessType = ChessTypeGet(chessBoardFlagTmp, currentChess, direction);// 棋型获得函数
+		ChessType = ChessTypeGet(chessboard, currentChess, direction);// 棋型获得函数
 		switch (ChessType) {
 		case ChangLian:
 			ChangLianNum++;
 			break;
+		case Lian5:
+			Lian5Num++;
+			break;
 		case Huo4:
 			Huo4Num++;
 			break;
-		case Chong4:
-			Chong4Num++;
+		case DoubleChong4:
+			DoubleChong4Num++;
 			break;
-		case TiaoChong4:
-			TiaoChong4Num++;
+		case HighChong4:
+			HighChong4Num++;
+			break;
+		case LowChong4:
+			LowChong4Num++;
 			break;
 		case Huo3:
 			Huo3Num++;
+			break;
+		case Tiao3:
+			Tiao3Num++;
 			break;
 		default:
 			break;
 		}
 	}
 
+	if (Lian5Num >= 1)
+		return 0;//若发现连五，则不考虑禁手的影响
+
 	if (ChangLianNum >= 1) {
 		return 3;//长连禁手
 	}
-	else if (Huo4Num + Chong4Num + TiaoChong4Num >= 2) {
-		return 2;//双4禁手
+
+	if (DoubleChong4Num >= 1) {
+		return 2;//双4禁手 同一方向形成双四禁手
 	}
-	else if (Huo3Num >= 2) {
+
+	if (Huo4Num + LowChong4Num + HighChong4Num >= 2) {
+		return 2;//双4禁手 不同方向形成双四禁手
+	}
+
+	if (Huo3Num + Tiao3Num>= 2) {
 		return 1;//双活3禁手
 	}
+
 	return 0;
 
 }
 
-int Rule::isForbidden(int chessBoardFlagTmp[15][15], Chess currentChess) {
-
-	//禁手规则：基于棋子类型判断 棋子类型判断需要另外构建函数，就在Rule类中实现即可
-		//棋型判断函数实现思想
-		//      1、首先获得四个方向的棋型（同一个方向需要获得9个棋子）
-						//在判断棋子类型之前需要先基于当前棋子位置处理边界条件（以对手的颜色进行填充）
-	                    //处理完边界条件之后就可以进行类型的判断
-					//若满足棋子类型则该类型++
-		//      2、最后根据返回的类型，判断该位置是否属于禁手位置
-
-	int fobiddenType = 0;//禁手类型
-
-	fobiddenType = fobiddenTypeJudge(chessBoardFlagTmp, currentChess);
-	switch (fobiddenType) {
-	case 1:
-		std::cout << std::endl << "*********违反双活3禁手*********" << std::endl;
-		break;
-	case 2:
-		std::cout << std::endl << "*********违反双4禁手*********" << std::endl;
-		break;
-	case 3:
-		std::cout << std::endl << "*********违反长连禁手*********" << std::endl;
-		break;
-	default:
-		break;
-	}
-
-	return fobiddenType == 0 ? 0 : 1;//如果禁手类型为0，则说明没有禁手，返回0
-}
-
-int Rule::isFive(int chessBoardFlagTmp[15][15],Chess currentChess) {
+int Rule::isFive(ChessBoard &chessboard,Chess &currentChess) {//colour：黑0 白1  flag：黑1 白2
 
 	int count;//计数器
-	int currentFlag;//当前棋子的标志信息
 
 	int currentRow = currentChess.getRow();
 	int currentCol = currentChess.getCol();
-	currentFlag = chessBoardFlagTmp[currentRow][currentCol];
+
+	int currentFlag;//当前棋子的标志信息
+	if (!currentChess.getColour()) {//如果是黑棋
+		currentFlag = 1;
+	}
+	else
+		currentFlag = 2;
 
 	int i, j;
 	int rowmin, rowmax;
@@ -359,7 +418,7 @@ int Rule::isFive(int chessBoardFlagTmp[15][15],Chess currentChess) {
 	colmin = currentCol - 4 < 0 ? 0 : currentCol - 4;
 	colmax = currentCol + 4 > 14 ? 14 : currentCol + 4;//边界条件
 	for (i = currentRow, j = colmin; j <= colmax; j++) {
-		if (chessBoardFlagTmp[i][j] == currentFlag){
+		if (chessboard.getFlag(i, j) == currentFlag){
 			count++;
 			if (count == 5)
 				return 1;
@@ -372,7 +431,7 @@ int Rule::isFive(int chessBoardFlagTmp[15][15],Chess currentChess) {
 	rowmin = currentRow - 4 < 0 ? 0 : currentRow - 4;
 	rowmax = currentRow + 4 > 14 ? 14 : currentRow + 4;//边界条件
 	for (i = rowmin, j = currentCol; i <= rowmax; i++) {
-		if (chessBoardFlagTmp[i][j] == currentFlag) {
+		if (chessboard.getFlag(i, j) == currentFlag) {
 			count++;
 			if (count == 5)
 				return 1;
@@ -407,7 +466,7 @@ int Rule::isFive(int chessBoardFlagTmp[15][15],Chess currentChess) {
 		}
 	}//右下角边界条件
 	for (i = rowmin, j = colmin; i <= rowmax, j <= colmax; i++, j++) {//从左上到右下遍历
-		if (chessBoardFlagTmp[i][j] == currentFlag) {
+		if (chessboard.getFlag(i, j) == currentFlag) {
 			count++;
 			if (count == 5)
 				return 1;
@@ -442,7 +501,7 @@ int Rule::isFive(int chessBoardFlagTmp[15][15],Chess currentChess) {
 		}
 	}//左下角边界条件
 	for (i = rowmin, j = colmax; i <= rowmax, j >= colmin; i++, j--) {//从右上到左下遍历
-		if (chessBoardFlagTmp[i][j] == currentFlag) {
+		if (chessboard.getFlag(i, j) == currentFlag) {
 			count++;
 			if (count == 5)
 				return 1;

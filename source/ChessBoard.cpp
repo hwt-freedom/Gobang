@@ -51,26 +51,8 @@ void ChessBoard::print(int mode) {//函数作用：打印棋盘信息
 	//显示新的棋盘及棋子信息
 }
 
-void ChessBoard::updateBoard(Chess currentChess) {
+int ChessBoard::isValid(Chess &currentChess) {//判断落子位置是否有效
 
-	for (int i = 0; i < ROW; i++)//将最后一步更新
-		for (int j = 0; j < COL; j++) {
-			if (chessBoardFlag[i][j] > 2)
-				chessBoardFlag[i][j] -= 2;
-		}
-
-	int row = currentChess.getRow();
-	int col = currentChess.getCol();
-	if (!currentChess.getColour()) {//黑棋
-		chessBoardFlag[row][col] = 3;
-	}
-	else {//白棋
-		chessBoardFlag[row][col] = 4;
-	}
-
-}
-
-int ChessBoard::isCorrect(Chess currentChess) {//判断落子位置是否正确
 	int row = currentChess.getRow();
 	int col = currentChess.getCol();
 
@@ -82,7 +64,36 @@ int ChessBoard::isCorrect(Chess currentChess) {//判断落子位置是否正确
 		return 1;
 }
 
-int ChessBoard::isFull() {//判断棋盘是否满，满则返回1-----尚未验证本函数是否正确！！！！
+void ChessBoard::addChessFlag(Chess &currentChess) {
+
+	int row = currentChess.getRow();
+	int col = currentChess.getCol();
+
+	if (!currentChess.getColour()) {//黑棋
+		chessBoardFlag[row][col] = 3;
+	}
+	else {//白棋
+		chessBoardFlag[row][col] = 4;
+	}
+
+}
+
+void ChessBoard::updateChessFlag() {
+
+	for (int i = 0; i < ROW; i++)//将最后一步更新，以便进行禁手和输赢判断
+		for (int j = 0; j < COL; j++) {
+			if (chessBoardFlag[i][j] > 2)
+				chessBoardFlag[i][j] -= 2;
+		}
+}
+
+int ChessBoard::getFlag(int row, int col) {
+
+	return this->chessBoardFlag[row][col];
+
+}
+
+int ChessBoard::isFull() {//判断棋盘是否满，满则返回1
 
 	for(int i=0;i<ROW;i++)
 		for (int j = 0; j < COL; j++) {
@@ -92,14 +103,20 @@ int ChessBoard::isFull() {//判断棋盘是否满，满则返回1-----尚未验证本函数是否正确
 	return 1;
 }
 
-void ChessBoard::getChessBoardFlag(int chessBoardFlagTmp[ROW][COL]) {
-	for (int i = 0; i < ROW; i++)
-		for (int j = 0; j < COL; j++)
-			chessBoardFlagTmp[i][j] = this->chessBoardFlag[i][j];
+int ChessBoard::isEmpty() {//判断棋盘是否空，空则返回1
+
+	for (int i = 0; i<ROW; i++)
+		for (int j = 0; j < COL; j++) {
+			if (chessBoardFlag[i][j] != 0)
+				return 0;
+		}
+	return 1;
 }
 
-void ChessBoard::setChessBoardFlag(int chessBoardFlagTmp[ROW][COL]) {
-	for (int i = 0; i < ROW; i++)
-		for (int j = 0; j < COL; j++)
-			this->chessBoardFlag[i][j] = chessBoardFlagTmp[i][j];
+void ChessBoard::setChessFlag(int state[15][15]) {
+
+	for (int i = 0; i < 15; i++)
+		for (int j = 0; j < 15; j++)
+			chessBoardFlag[i][j] = state[i][j];
+
 }

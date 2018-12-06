@@ -50,9 +50,11 @@ public:
 	}
 
 	void print(int mode);//根据模式打印棋盘当前
-	int isCorrect(Chess currentChess);//判断输入的棋子是否合法
-	int isFull();
-	void updateBoard(Chess currentChess);
-	void getChessBoardFlag(int chessBoardFlagTmp[ROW][COL]);
-	void setChessBoardFlag(int chessBoardFlagTmp[ROW][COL]);
+	int isValid(Chess &currentChess);//判断输入的棋子是否合法
+	void addChessFlag(Chess &currentChess);//为棋盘添加棋子
+	void updateChessFlag();//更新棋盘信息
+	int getFlag(int row, int col);
+	int isFull(); //判断棋盘是否为满
+	int isEmpty();//判断棋盘是否为空
+	void setChessFlag(int state[15][15]);//用于测试输入特定棋谱
 };

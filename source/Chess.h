@@ -7,8 +7,11 @@ private:
 	int row, col;//棋子坐标信息
 
 public:
-	void setChess(int colour, int row, int column);
-	void inputChess(int colour);
+	Chess();//构造函数
+
+	void setPosition(int row, int col);
+	void getPosition(int row, int col);
+	void setColour(int colour);
 	int getColour();
 	int getRow();
 	int getCol();
