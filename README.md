@@ -56,35 +56,35 @@ static const int Mian2 = 12;		//眠2为12
       //连5       10000分     Lian5Num >= 1
 
       //活4       5000分      Huo4Num >= 1
-     //双冲4_1   5000分      DoubleChong4Num >= 1
-     //双冲4_2   5000分      Chong4Num >= 2
-     //冲4活3    5000分      Chong4Num + Huo3Num + Tiao3Num>= 2
-
-     //双活3     4500分       Huo3Num >= 2
-    //双活3     4000分       Huo3Num + Tiao3Num >= 2
-    //双活3     3500分       Tiao3Num >= 2         //优先考虑普通活3
-
-    //活3眠3    2500分       Huo3Num + Mian3 >= 2
-    //活3眠3    2000分       Tiao3Num + Huo3Num + Mian3 >= 2
-    //活3眠3    1500分       Tiao3Num + Mian3 >= 2 //优先考虑普通活3
-
-    //冲4       1000分       Chong4Num >= 1
-
-    //活3       800分        Huo3Num >= 1
-
-    //跳3       700分        Tiao3Num >= 1
-
-    //双活2     550分        Huo2Num >= 2
-   //双活2     500分        Huo2Num + Tiao2Num >= 2
-   //双活2     450分        Tiao2Num >= 2        //优先考虑普通活2
-
-     //活2眠2    250分        Huo2Num + Mian2Num >= 2
-    //活2眠2    200分        Huo2Num + Tiao2Num + Mian2Num >= 2
-   //活2眠2    150分        Tiao2Num + Mian2Num >= 2
-
-    //眠3       100分        Mian3 >= 1
-    //活2       80分         Huo2Num >= 1
-   //跳2       70分         Tiao2Num >= 1
-   //眠2       50分         Mian2Num >= 1
-  //其他      10分
+      //双冲4_1   5000分      DoubleChong4Num >= 1
+      //双冲4_2   5000分      Chong4Num >= 2
+      //冲4活3    5000分      Chong4Num + Huo3Num + Tiao3Num>= 2
+      
+      //双活3     4500分       Huo3Num >= 2
+      //双活3     4000分       Huo3Num + Tiao3Num >= 2
+      //双活3     3500分       Tiao3Num >= 2         //优先考虑普通活3
+      
+      //活3眠3    2500分       Huo3Num + Mian3 >= 2
+      //活3眠3    2000分       Tiao3Num + Huo3Num + Mian3 >= 2
+      //活3眠3    1500分       Tiao3Num + Mian3 >= 2 //优先考虑普通活3
+      
+      //冲4       1000分       Chong4Num >= 1
+      //活3       800分        Huo3Num >= 1
+      //跳3       700分        Tiao3Num >= 1
+      
+      //双活2     550分        Huo2Num >= 2
+      //双活2     500分        Huo2Num + Tiao2Num >= 2
+      //双活2     450分        Tiao2Num >= 2        //优先考虑普通活2
+      
+      //活2眠2    250分        Huo2Num + Mian2Num >= 2
+      //活2眠2    200分        Huo2Num + Tiao2Num + Mian2Num >= 2
+      //活2眠2    150分        Tiao2Num + Mian2Num >= 2
+      
+      //眠3       100分        Mian3 >= 1
+      
+      //活2       80分         Huo2Num >= 1
+      //跳2       70分         Tiao2Num >= 1
+      //眠2       50分         Mian2Num >= 1
+      
+      //其他      10分
 ```
