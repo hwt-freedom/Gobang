@@ -3,8 +3,6 @@
 
 #### 开发环境
 * **Microsoft Visual Studio 2017**
-#### 源码地址
-[Gobang](https://github.com/hwt-freedom/Gobang)
 
 ### 基本类型介绍
 ##### 五子棋类 $Gobang$
